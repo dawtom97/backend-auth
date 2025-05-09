@@ -96,35 +96,57 @@ router.get(
   }
 );
 
-router.delete('/delete-invoice', authMiddleware, async (req: Request, res: Response): Promise<any> => {
+router.delete(
+  "/delete-invoice",
+  authMiddleware,
+  async (req: Request, res: Response): Promise<any> => {
     try {
-        const params = req.query
-        const parsedId = new mongoose.Types.ObjectId(params.id as string)
-        
-        const invoice = await InvoiceModel.findOne({ _id: parsedId })
-        
-        if (!invoice) {
-            return res.status(404).json({
-                message: 'Faktura o podanym id nie istnieje',
-                success:"error"
-            })
-        }
-        
-        await InvoiceModel.deleteOne({ _id: parsedId })
-        
-        return res.status(200).json({
-            message: 'Usunięto fakturę',
-            data: parsedId,
-            status:"success"
-        })
-    } catch (error) {
-        return res.status(500).json({
-            message: 'Błąd serwera',
-            error,
-            status:"error"
-        })
-    }
-})
+      const params = req.query;
+      const parsedId = new mongoose.Types.ObjectId(params.id as string);
 
+      const invoice = await InvoiceModel.findOne({ _id: parsedId });
+
+      if (!invoice) {
+        return res.status(404).json({
+          message: "Faktura o podanym id nie istnieje",
+          status: "error",
+        });
+      }
+
+      await InvoiceModel.deleteOne({ _id: parsedId });
+
+      return res.status(200).json({
+        message: "Usunięto fakturę",
+        data: parsedId,
+        status: "success",
+      });
+    } catch (error) {
+      return res.status(500).json({
+        message: "Błąd serwera",
+        error,
+        status: "error",
+      });
+    }
+  }
+);
+
+router.get(
+  "/count-invoice",
+  authMiddleware,
+  async (req: Request, res: Response): Promise<any> => {
+    try {
+      const invoiceCount = await InvoiceModel.countDocuments({});
+      return res.json({
+        message: "Pobrano liczbę faktur",
+        data: invoiceCount,
+      });
+    } catch (error) {
+      res.status(500).json({
+        message: "Błąd serwera",
+        error,
+      });
+    }
+  }
+);
 
 export default router;
